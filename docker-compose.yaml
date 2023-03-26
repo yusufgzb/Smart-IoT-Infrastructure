@@ -1,0 +1,50 @@
+version: "3.9"
+services:
+  pyspark:
+    image: jupyter/pyspark-notebook
+    container_name: pyspark-docker
+    environment:
+      JUPYTER_ENABLE_LAB: "yes"
+    ports:
+      - "8888:8888"
+    volumes:
+      - C:/Users/Yusuf/Desktop/PythonPrograming/PySpark:/home/jovyan
+    networks:
+      - siot_i_network
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra-docker
+    ports:
+      - 9042:9042
+    volumes:
+      - C:/Users/Yusuf/Desktop/PythonPrograming/VeriTabanı/NoSql/Cassandra101/data:/var/lib/cassandra
+    networks:
+      - siot_i_network
+  zookeeper:
+    image: "zookeeper:3.8.0"
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      - siot_i_network
+  kafka:
+    image: "bitnami/kafka:3.3.1"
+    container_name: kafka-docker
+
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 0
+      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,PLAINTEXT_HOST://:29092"
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://127.0.0.1:9092,PLAINTEXT_HOST://kafka:29092"
+      KAFKA_CFG_ZOOKEEPER_CONNECT: "zookeeper:2181/kafka"
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_CFG_ADVERTISED_HOST_NAME: "kafka"
+    depends_on:
+      - zookeeper
+    networks:
+      - siot_i_network
+networks:
+  siot_i_network:
+    driver: bridge
