@@ -45,13 +45,9 @@ USE cassandra_tutorial;
     );
 
 
-INSERT INTO deneme_tablo (id,name, address) VALUES(1,'yusuf', 'adres deneme1');
 
-INSERT INTO deneme_tablo (id,name, address) VALUES(2,'11yusuf', 'adres deneme1');
 
-INSERT INTO deneme_tablo (id,name, address) VALUES(3,'34yusuf', 'adres deneme1');
-
-SELECT * FROM deneme_tablo;
+SELECT * FROM energy_data;
 
 exit
 
