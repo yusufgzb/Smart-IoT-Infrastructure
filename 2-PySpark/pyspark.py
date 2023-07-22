@@ -52,7 +52,7 @@ energy_data_schema = StructType([
 df = spark \
   .readStream \
   .format("kafka") \
-  .option("kafka.bootstrap.servers", "kafka-docker:29092") \
+  .option("kafka.bootstrap.servers", "34.29.188.170:9092") \
   .option("subscribe", "ornek") \
   .load()
 
