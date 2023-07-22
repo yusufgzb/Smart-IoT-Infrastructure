@@ -1,9 +1,9 @@
-from pyspark.sql.functions import from_json
+from pyspark.sql.functions import from_json, col
 from pyspark.sql.types import StructType, StructField, DoubleType, TimestampType, IntegerType, StringType,FloatType
 
 spark = SparkSession.builder \
     .appName("Cassandra to Spark DataFrame") \
-    .config("spark.cassandra.connection.host", "cassandra-docker") \
+    .config("spark.cassandra.connection.host", "localhost") \
     .config("spark.sql.extensions", "com.datastax.spark.connector.CassandraSparkExtensions") \
     .getOrCreate()
 
@@ -12,8 +12,8 @@ table_name = "energy_data"
 
 # Cassandra anahtar uzayının ismi
 keyspace = "cassandra_tutorial"
-
 # StructType oluşturma
+
 energy_data_schema = StructType([
         StructField("time", TimestampType(), True),
         StructField("apparenttemperature", FloatType(), True),
@@ -58,17 +58,75 @@ df = spark \
 
 # JSON verileri StructType'a dönüştürme
 df = df.select(from_json(df["value"].cast("string"), energy_data_schema).alias("activation")) 
-
-df = df.select("activation.time","activation.apparenttemperature", "activation.barn_kw", "activation.cloudcover", "activation.dewpoint",
-                "activation.dishwasher_kw", "activation.fridge_kw", "activation.furnace_1_kw", "activation.furnace_2_kw",
-                "activation.garage_door_kw", "activation.gen_kw", "activation.home_office_kw", "activation.humidity",
-                "activation.house_overall_kw", "activation.icon", "activation.kitchen_12_kw", "activation.kitchen_14_kw",
-                "activation.kitchen_38_kw", "activation.living_room_kw", "activation.microwave_kw", "activation.precipintensity",
-                "activation.precipprobability", "activation.pressure", "activation.solar_kw", "activation.summary",
-                "activation.temperature", "activation.visibility", "activation.well_kw",
+df = df.select(
+    "activation.time",
+    "activation.apparenttemperature", 
+    "activation.barn_kw", 
+    "activation.cloudcover", 
+    "activation.dewpoint",
+                "activation.dishwasher_kw", 
+                "activation.fridge_kw", 
+                "activation.furnace_1_kw", 
+                "activation.furnace_2_kw",
+                "activation.garage_door_kw", 
+                "activation.gen_kw", 
+                "activation.home_office_kw", 
+                "activation.humidity",
+                "activation.house_overall_kw", 
+                "activation.icon", 
+                "activation.kitchen_12_kw", 
+                "activation.kitchen_14_kw",
+                "activation.kitchen_38_kw", 
+                "activation.living_room_kw", 
+                "activation.microwave_kw", 
+                "activation.precipintensity",
+                "activation.precipprobability", 
+                "activation.pressure", 
+                "activation.solar_kw", 
+                "activation.summary",
+                "activation.temperature",
+                "activation.use_kw", "activation.visibility", "activation.well_kw",
                 "activation.windbearing", "activation.windspeed", "activation.wine_cellar_kw")# Cassandra tablosuna yazma
 
+cassandra_column_names = [
+    "time",
+    "use_kw",
+    "apparenttemperature",
+    "barn_kw",
+    "cloudcover",
+    "dewpoint",
+    "dishwasher_kw",
+    "fridge_kw",
+    "furnace_1_kw",
+    "furnace_2_kw",
+    "garage_door_kw",
+    "gen_kw",
+    "home_office_kw",
+    "humidity",
+    "house_overall_kw",
+    "icon",
+    "kitchen_12_kw",
+    "kitchen_14_kw",
+    "kitchen_38_kw",
+    "living_room_kw",
+    "microwave_kw",
+    "precipintensity",
+    "precipprobability",
+    "pressure",
+    "solar_kw",
+    "summary",
+    "temperature",
+    "visibility",
+    "well_kw",
+    "windbearing",
+    "windspeed",
+    "wine_cellar_kw"
+]
 
+# DataFrame'deki kolonları sırasını değiştirmeden seçme
+df = df.select(cassandra_column_names)
+
+# Cassandra tablosuna yazma
 df.writeStream \
     .format("org.apache.spark.sql.cassandra") \
     .option("checkpointLocation", "/tmp/checkpoint") \
